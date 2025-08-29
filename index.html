@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Master 2025</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>Dungeon Master 2025</h1>
+            <div class="game-stats">
+                <div class="stat">
+                    <span class="stat-label">Actions:</span>
+                    <span id="action-points" class="stat-value">3</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Turn:</span>
+                    <span id="turn-counter" class="stat-value">1</span>
+                </div>
+            </div>
+        </header>
+        
+        <div class="game-main">
+            <div class="game-ui">
+                <div class="character-panel">
+                    <h3>Active Character</h3>
+                    <div id="character-info">
+                        <div class="character-sprite" id="selected-character"></div>
+                        <div class="character-details">
+                            <p><strong>Name:</strong> <span id="char-name">Warrior</span></p>
+                            <p><strong>HP:</strong> <span id="char-hp">100</span></p>
+                            <p><strong>Level:</strong> <span id="char-level">1</span></p>
+                        </div>
+                    </div>
+                    <div class="group-switcher">
+                        <h4>Group Members</h4>
+                        <div id="group-members" class="group-members">
+                            <!-- Group members will be populated here -->
+                        </div>
+                        <div class="group-controls">
+                            <button id="prev-character-btn" class="btn btn-sm btn-secondary">← Previous</button>
+                            <button id="next-character-btn" class="btn btn-sm btn-secondary">Next →</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls-panel">
+                    <h3>Controls</h3>
+                    <div class="control-list">
+                        <p><strong>Movement:</strong> Arrow Keys</p>
+                        <p><strong>End Turn:</strong> Q</p>
+                        <p><strong>Open Door:</strong> E</p>
+                        <p><strong>Bash Door:</strong> B</p>
+                        <p><strong>Character:</strong> C</p>
+                        <p><strong>Switch Character:</strong> Tab</p>
+                        <p><strong>Previous Character:</strong> Shift+Tab</p>
+                        <p><strong>Reset:</strong> R</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-canvas-container">
+                <canvas id="gameCanvas" width="800" height="600"></canvas>
+                <div class="canvas-overlay">
+                    <div id="tile-info" class="tile-info"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-controls">
+            <button id="character-btn" class="btn btn-info">Character (C)</button>
+            <button id="end-turn-btn" class="btn btn-primary">End Turn (Q)</button>
+            <button id="save-btn" class="btn btn-success">Save Game</button>
+            <button id="load-btn" class="btn btn-warning">Load Game</button>
+            <button id="reset-btn" class="btn btn-secondary">Reset Game (R)</button>
+        </div>
+        <div id="end-turn-hint" class="end-turn-hint" style="display: none;"></div>
+    </div>
+    
+    <!-- Character Dialog -->
+    <div id="character-dialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Character Management</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="character-selector">
+                    <h3>Group Selection (Max 3)</h3>
+                    <div id="character-list" class="character-list">
+                        <!-- Characters will be populated here -->
+                    </div>
+                    <div class="group-controls">
+                        <button id="new-character-btn" class="btn btn-success">Create New Character</button>
+                        <button id="clear-group-btn" class="btn btn-warning">Clear Group</button>
+                    </div>
+                </div>
+                <div class="character-details-panel">
+                    <div id="character-attributes"></div>
+                    <div id="character-skills"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+{
+  "monsters": {
+    "goblin": {
+      "name": "Goblin",
+      "variants": [
+        "Goblin Scout",
+        "Goblin Warrior", 
+        "Goblin Thief",
+        "Goblin Archer"
+      ],
+      "attributes": {
+        "BDY": 8,
+        "AGI": 14,
+        "INT": 8,
+        "WIL": 10,
+        "GNO": 8,
+        "SOL": 8
+      },
+      "stats": {
+        "maxHp": 12,
+        "actionPoints": 1,
+        "maxActionPoints": 1,
+        "attack": 16,
+        "defense": 8,
+        "speed": 1,
+        "attackRange": 1,
+        "visionRange": 2,
+        "soundRange": 4
+      },
+      "rewards": {
+        "experienceValue": 15,
+        "goldValue": 8
+      },
+      "ai": "patrol",
+      "description": "Small, agile creatures that prefer hit-and-run tactics"
+    },
+    "orc": {
+      "name": "Orc",
+      "variants": [
+        "Orc Warrior",
+        "Orc Berserker",
+        "Orc Guard",
+        "Orc Shaman"
+      ],
+      "attributes": {
+        "BDY": 14,
+        "AGI": 10,
+        "INT": 8,
+        "WIL": 12,
+        "GNO": 8,
+        "SOL": 8
+      },
+      "stats": {
+        "maxHp": 20,
+        "actionPoints": 2,
+        "maxActionPoints": 2,
+        "attack": 24,
+        "defense": 12,
+        "speed": 1,
+        "attackRange": 1,
+        "visionRange": 3,
+        "soundRange": 6
+      },
+      "rewards": {
+        "experienceValue": 25,
+        "goldValue": 15
+      },
+      "ai": "patrol",
+      "description": "Strong, brutish warriors with a taste for combat"
+    },
+    "skeleton": {
+      "name": "Skeleton",
+      "variants": [
+        "Skeleton Warrior",
+        "Skeleton Archer",
+        "Skeleton Mage",
+        "Skeleton Guard"
+      ],
+      "attributes": {
+        "BDY": 10,
+        "AGI": 12,
+        "INT": 6,
+        "WIL": 8,
+        "GNO": 10,
+        "SOL": 6
+      },
+      "stats": {
+        "maxHp": 16,
+        "actionPoints": 1,
+        "maxActionPoints": 1,
+        "attack": 18,
+        "defense": 10,
+        "speed": 1,
+        "attackRange": 1,
+        "visionRange": 2,
+        "soundRange": 5
+      },
+      "rewards": {
+        "experienceValue": 20,
+        "goldValue": 12
+      },
+      "ai": "guard",
+      "description": "Undead warriors animated by dark magic"
+    },
+    "troll": {
+      "name": "Troll",
+      "variants": [
+        "Troll Brute",
+        "Troll Shaman",
+        "Troll Guardian",
+        "Troll Berserker"
+      ],
+      "attributes": {
+        "BDY": 18,
+        "AGI": 8,
+        "INT": 6,
+        "WIL": 14,
+        "GNO": 8,
+        "SOL": 6
+      },
+      "stats": {
+        "maxHp": 30,
+        "actionPoints": 3,
+        "maxActionPoints": 3,
+        "attack": 32,
+        "defense": 16,
+        "speed": 1,
+        "attackRange": 1,
+        "visionRange": 4,
+        "soundRange": 8
+      },
+      "rewards": {
+        "experienceValue": 40,
+        "goldValue": 25
+      },
+      "ai": "patrol",
+      "description": "Massive, regenerating creatures with incredible strength"
+    },
+    "kobold": {
+      "name": "Kobold",
+      "variants": [
+        "Kobold Scout",
+        "Kobold Trapper",
+        "Kobold Shaman",
+        "Kobold Warrior"
+      ],
+      "attributes": {
+        "BDY": 6,
+        "AGI": 16,
+        "INT": 10,
+        "WIL": 8,
+        "GNO": 12,
+        "SOL": 6
+      },
+      "stats": {
+        "maxHp": 8,
+        "actionPoints": 2,
+        "maxActionPoints": 2,
+        "attack": 12,
+        "defense": 6,
+        "speed": 2,
+        "attackRange": 1,
+        "visionRange": 3,
+        "soundRange": 6
+      },
+      "rewards": {
+        "experienceValue": 10,
+        "goldValue": 5
+      },
+      "ai": "patrol",
+      "description": "Small, cunning creatures that excel at ambush tactics"
+    },
+    "zombie": {
+      "name": "Zombie",
+      "variants": [
+        "Zombie",
+        "Rotting Zombie",
+        "Zombie Brute",
+        "Zombie Shambler"
+      ],
+      "attributes": {
+        "BDY": 12,
+        "AGI": 6,
+        "INT": 4,
+        "WIL": 6,
+        "GNO": 8,
+        "SOL": 4
+      },
+      "stats": {
+        "maxHp": 18,
+        "actionPoints": 1,
+        "maxActionPoints": 1,
+        "attack": 14,
+        "defense": 8,
+        "speed": 1,
+        "attackRange": 1,
+        "visionRange": 1,
+        "soundRange": 3
+      },
+      "rewards": {
+        "experienceValue": 12,
+        "goldValue": 3
+      },
+      "ai": "idle",
+      "description": "Slow, mindless undead that are easily detected but dangerous in numbers"
+    },
+    "ghost": {
+      "name": "Ghost",
+      "variants": [
+        "Ghost",
+        "Wraith",
+        "Specter",
+        "Phantom"
+      ],
+      "attributes": {
+        "BDY": 8,
+        "AGI": 14,
+        "INT": 12,
+        "WIL": 16,
+        "GNO": 14,
+        "SOL": 8
+      },
+      "stats": {
+        "maxHp": 15,
+        "actionPoints": 2,
+        "maxActionPoints": 2,
+        "attack": 20,
+        "defense": 12,
+        "speed": 2,
+        "attackRange": 1,
+        "visionRange": 5,
+        "soundRange": 2
+      },
+      "rewards": {
+        "experienceValue": 30,
+        "goldValue": 20
+      },
+      "ai": "guard",
+      "description": "Ethereal undead that can pass through walls and have keen senses"
+    },
+    "dragon": {
+      "name": "Dragon",
+      "variants": [
+        "Young Dragon",
+        "Dragon Warrior",
+        "Dragon Mage",
+        "Dragon Guardian"
+      ],
+      "attributes": {
+        "BDY": 20,
+        "AGI": 12,
+        "INT": 16,
+        "WIL": 18,
+        "GNO": 16,
+        "SOL": 14
+      },
+      "stats": {
+        "maxHp": 50,
+        "actionPoints": 3,
+        "maxActionPoints": 3,
+        "attack": 40,
+        "defense": 20,
+        "speed": 2,
+        "attackRange": 2,
+        "visionRange": 6,
+        "soundRange": 10
+      },
+      "rewards": {
+        "experienceValue": 100,
+        "goldValue": 100
+      },
+      "ai": "patrol",
+      "description": "Powerful, intelligent creatures with devastating attacks and keen senses"
+    }
+  }
+}
