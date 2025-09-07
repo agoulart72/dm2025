@@ -48,15 +48,9 @@
                 
                 <div class="controls-panel">
                     <h3>Controls</h3>
-                    <div class="control-list">
-                        <p><strong>Movement:</strong> Arrow Keys</p>
-                        <p><strong>End Turn:</strong> Q</p>
-                        <p><strong>Open Door:</strong> E</p>
-                        <p><strong>Bash Door:</strong> B</p>
-                        <p><strong>Character:</strong> C</p>
-                        <p><strong>Switch Character:</strong> Tab</p>
-                        <p><strong>Previous Character:</strong> Shift+Tab</p>
-                        <p><strong>Reset:</strong> R</p>
+                    <button id="help-btn" class="btn btn-info btn-sm">Help (H)</button>
+                    <div id="skill-shortcuts" class="skill-shortcuts">
+                        <!-- Skill shortcuts will be populated here -->
                     </div>
                 </div>
             </div>
@@ -100,6 +94,81 @@
                 <div class="character-details-panel">
                     <div id="character-attributes"></div>
                     <div id="character-skills"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Dialog -->
+    <div id="help-dialog" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Game Controls & Help</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h3>Basic Controls</h3>
+                    <div class="help-grid">
+                        <div class="help-item">
+                            <span class="help-key">Arrow Keys</span>
+                            <span class="help-desc">Move character</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">Q</span>
+                            <span class="help-desc">End turn</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">E</span>
+                            <span class="help-desc">Open door</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">B</span>
+                            <span class="help-desc">Bash door</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">C</span>
+                            <span class="help-desc">Character management</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">Tab</span>
+                            <span class="help-desc">Next character</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">Shift+Tab</span>
+                            <span class="help-desc">Previous character</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">R</span>
+                            <span class="help-desc">Reset game</span>
+                        </div>
+                        <div class="help-item">
+                            <span class="help-key">H</span>
+                            <span class="help-desc">Show this help</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="help-section">
+                    <h3>Character Skills</h3>
+                    <div id="help-skill-shortcuts" class="help-skill-shortcuts">
+                        <!-- Current skill shortcuts will be populated here -->
+                    </div>
+                    <div class="skill-configuration">
+                        <h4>Configure Skill Shortcuts</h4>
+                        <p>Set up quick access keys for your character's skills:</p>
+                        <div id="skill-config-form" class="skill-config-form">
+                            <!-- Skill configuration form will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="help-section">
+                    <h3>Game Mechanics</h3>
+                    <div class="help-text">
+                        <p><strong>Action Points:</strong> Each character has a limited number of actions per turn. Movement and attacks consume action points.</p>
+                        <p><strong>Combat:</strong> Characters can attack enemies in adjacent tiles or use ranged attacks. Defense rolls can reduce incoming damage.</p>
+                        <p><strong>Vision:</strong> Enemies can detect characters through line of sight. Walls and doors block vision.</p>
+                        <p><strong>Group Management:</strong> You can have up to 3 characters in your group. Switch between them using Tab or the character panel.</p>
+                    </div>
                 </div>
             </div>
         </div>

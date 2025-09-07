@@ -11,10 +11,16 @@ export class UIManager {
             selectedCharacter: document.getElementById('selected-character'),
             groupMembers: document.getElementById('group-members'),
             prevCharacterBtn: document.getElementById('prev-character-btn'),
-            nextCharacterBtn: document.getElementById('next-character-btn')
+            nextCharacterBtn: document.getElementById('next-character-btn'),
+            helpBtn: document.getElementById('help-btn'),
+            helpDialog: document.getElementById('help-dialog'),
+            skillShortcuts: document.getElementById('skill-shortcuts'),
+            helpSkillShortcuts: document.getElementById('help-skill-shortcuts'),
+            skillConfigForm: document.getElementById('skill-config-form')
         };
         
         this.characterDialog = new CharacterDialogManager();
+        this.setupHelpDialogListeners();
     }
     
     updateCharacterInfo(character) {
@@ -27,6 +33,9 @@ export class UIManager {
         
         // Update character sprite
         this.updateCharacterSprite(character);
+        
+        // Update skill shortcuts
+        this.updateSkillShortcuts(character);
     }
     
     updateGroupInfo(group, currentCharacter) {
@@ -250,22 +259,24 @@ export class UIManager {
     updateSkillShortcuts(character) {
         if (!character || !character.skillShortcuts) return;
         
-        // Find or create skill shortcuts display
-        let shortcutsContainer = document.getElementById('skill-shortcuts');
-        if (!shortcutsContainer) {
-            shortcutsContainer = document.createElement('div');
-            shortcutsContainer.id = 'skill-shortcuts';
-            shortcutsContainer.className = 'skill-shortcuts';
-            
-            // Insert after the game stats
-            const gameStats = document.querySelector('.game-stats');
-            if (gameStats) {
-                gameStats.parentNode.insertBefore(shortcutsContainer, gameStats.nextSibling);
-            }
-        }
+        // Update both the controls panel and help dialog
+        this.updateControlsSkillShortcuts(character);
+        this.updateHelpSkillShortcuts(character);
+        this.updateSkillConfigurationForm(character);
+    }
+    
+    updateControlsSkillShortcuts(character) {
+        const shortcutsContainer = this.elements.skillShortcuts;
+        if (!shortcutsContainer) return;
         
         // Clear existing shortcuts
         shortcutsContainer.innerHTML = '';
+        
+        // Check if character has skill shortcuts
+        if (!character || !character.skillShortcuts || Object.keys(character.skillShortcuts).length === 0) {
+            shortcutsContainer.style.display = 'none';
+            return;
+        }
         
         // Add title
         const title = document.createElement('h3');
@@ -293,15 +304,173 @@ export class UIManager {
             shortcutElement.appendChild(keyElement);
             shortcutElement.appendChild(skillElement);
             shortcutElement.appendChild(costElement);
+            
             shortcutsContainer.appendChild(shortcutElement);
+        });
+        
+        // Show the shortcuts container
+        shortcutsContainer.style.display = 'block';
+    }
+    
+    updateHelpSkillShortcuts(character) {
+        const helpShortcutsContainer = this.elements.helpSkillShortcuts;
+        if (!helpShortcutsContainer) return;
+        
+        // Clear existing shortcuts
+        helpShortcutsContainer.innerHTML = '';
+        
+        if (!character || !character.skillShortcuts) {
+            helpShortcutsContainer.innerHTML = '<p style="color: #666; font-style: italic;">No character selected</p>';
+            return;
+        }
+        
+        // Add skill shortcuts
+        Object.entries(character.skillShortcuts).forEach(([key, skillName]) => {
+            const shortcutElement = document.createElement('div');
+            shortcutElement.className = 'help-skill-shortcut';
+            
+            const keyElement = document.createElement('span');
+            keyElement.className = 'help-skill-key';
+            keyElement.textContent = key.replace('Digit', '');
+            
+            const skillElement = document.createElement('span');
+            skillElement.className = 'help-skill-name';
+            skillElement.textContent = character.skills[skillName]?.name || skillName;
+            
+            shortcutElement.appendChild(keyElement);
+            shortcutElement.appendChild(skillElement);
+            
+            helpShortcutsContainer.appendChild(shortcutElement);
         });
     }
     
-
+    updateSkillConfigurationForm(character) {
+        const configForm = this.elements.skillConfigForm;
+        if (!configForm) return;
+        
+        // Clear existing form
+        configForm.innerHTML = '';
+        
+        if (!character || !character.skills) {
+            configForm.innerHTML = '<p style="color: #666; font-style: italic;">No character selected</p>';
+            return;
+        }
+        
+        // Available keys for shortcuts (1-9)
+        const availableKeys = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        
+        // Get available skills (only those the character has)
+        const availableSkills = Object.entries(character.skills)
+            .filter(([skillName, skill]) => skill.level > 0)
+            .map(([skillName, skill]) => ({ name: skillName, displayName: skill.name }));
+        
+        // Add "None" option
+        availableSkills.unshift({ name: '', displayName: 'None' });
+        
+        // Create form items for each key
+        availableKeys.forEach(key => {
+            const formItem = document.createElement('div');
+            formItem.className = 'skill-config-item';
+            
+            const label = document.createElement('label');
+            label.textContent = `Key ${key}:`;
+            label.setAttribute('for', `skill-${key}`);
+            
+            const select = document.createElement('select');
+            select.id = `skill-${key}`;
+            select.dataset.key = key;
+            
+            // Add options
+            availableSkills.forEach(skill => {
+                const option = document.createElement('option');
+                option.value = skill.name;
+                option.textContent = skill.displayName;
+                
+                // Select current shortcut if it exists
+                if (character.skillShortcuts && character.skillShortcuts[`Digit${key}`] === skill.name) {
+                    option.selected = true;
+                }
+                
+                select.appendChild(option);
+            });
+            
+            // Add change event listener
+            select.addEventListener('change', (e) => {
+                this.updateSkillShortcut(character, key, e.target.value);
+            });
+            
+            formItem.appendChild(label);
+            formItem.appendChild(select);
+            configForm.appendChild(formItem);
+        });
+    }
     
-
+    updateSkillShortcut(character, key, skillName) {
+        if (!character.skillShortcuts) {
+            character.skillShortcuts = {};
+        }
+        
+        if (skillName === '') {
+            // Remove shortcut
+            delete character.skillShortcuts[`Digit${key}`];
+        } else {
+            // Set shortcut
+            character.skillShortcuts[`Digit${key}`] = skillName;
+        }
+        
+        // Update the displays
+        this.updateControlsSkillShortcuts(character);
+        this.updateHelpSkillShortcuts(character);
+        
+        console.log(`Updated skill shortcut: Key ${key} -> ${skillName || 'None'}`);
+    }
     
-
+    showHelpDialog() {
+        const helpDialog = this.elements.helpDialog;
+        if (helpDialog) {
+            helpDialog.style.display = 'block';
+            
+            // Update skill configuration form with current character
+            // We need to get the current character from the game engine
+            if (window.game && window.game.player) {
+                this.updateSkillConfigurationForm(window.game.player);
+            }
+        }
+    }
+    
+    hideHelpDialog() {
+        const helpDialog = this.elements.helpDialog;
+        if (helpDialog) {
+            helpDialog.style.display = 'none';
+        }
+    }
+    
+    setupHelpDialogListeners() {
+        const helpDialog = this.elements.helpDialog;
+        if (!helpDialog) return;
+        
+        // Close button
+        const closeBtn = helpDialog.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                this.hideHelpDialog();
+            });
+        }
+        
+        // Close on outside click
+        helpDialog.addEventListener('click', (e) => {
+            if (e.target === helpDialog) {
+                this.hideHelpDialog();
+            }
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Escape' && helpDialog.style.display === 'block') {
+                this.hideHelpDialog();
+            }
+        });
+    }
     
     showMessage(message, type = 'info') {
         // Create message element

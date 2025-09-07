@@ -1,11 +1,12 @@
-export class Character {
+import { BaseEntity } from './BaseEntity.js';
+
+export class Character extends BaseEntity {
     constructor(data) {
+        super(data);
+
         // Basic properties
-        this.id = data.id || this.generateUUID();
-        this.name = data.name || 'Unknown';
         this.type = data.type || 'character';
-        this.x = data.x || 0;
-        this.y = data.y || 0;
+        this.characterClass = data.characterClass || 'warrior';
         
         // Core Attributes (6 main attributes)
         this.attributes = {
@@ -28,6 +29,13 @@ export class Character {
         this.actionPoints = data.actionPoints || 3;
         this.maxActionPoints = data.maxActionPoints || 3;
         
+        // Reaction system (for defense)
+        this.reactions = data.reactions || this.calculateMaxReactions();
+        this.maxReactions = this.calculateMaxReactions();
+        
+        // Log combat system initialization
+        console.log(`⚔️ Combat system initialized for ${this.name}: ${this.maxReactions} reactions (AGI: ${this.attributes.AGI})`);
+        
         // Combat stats
         this.attack = data.attack || 10;
         this.defense = data.defense || 5;
@@ -47,7 +55,6 @@ export class Character {
         // Visual properties
         this.sprite = data.sprite || null;
         this.color = data.color || '#4ecdc4';
-        this.characterType = data.type || 'warrior'; // For image loading
         
         // AI properties (for NPCs)
         this.ai = data.ai || null;
@@ -199,6 +206,72 @@ export class Character {
             }
         });
         return spent;
+    }
+    
+    // Calculate maximum reactions (half agility, round up)
+    calculateMaxReactions() {
+        return Math.ceil(this.attributes.AGI / 2);
+    }
+    
+    // Restore reactions at the beginning of turn
+    restoreReactions() {
+        this.reactions = this.maxReactions;
+        console.log(`🛡️ ${this.name} restored ${this.reactions} reactions (AGI: ${this.attributes.AGI})`);
+    }
+    
+    // Roll dice for a skill check
+    rollSkill(skillName) {
+        const skill = this.skills[skillName];
+        if (!skill) {
+            console.error(`Skill ${skillName} not found`);
+            return { successes: 0, dice: [] };
+        }
+        
+        // Calculate number of dice (attribute + skill level)
+        let diceCount = 0;
+        skill.attributes.forEach(attr => {
+            diceCount += this.attributes[attr];
+        });
+        diceCount += skill.level;
+        
+        // Roll dice
+        const dice = [];
+        let successes = 0;
+        
+        for (let i = 0; i < diceCount; i++) {
+            const roll = Math.floor(Math.random() * 6) + 1;
+            dice.push(roll);
+            if (roll >= 5) { // 5 or 6 is a success
+                successes++;
+            }
+        }
+        
+        console.log(`🎲 ${this.name} rolls ${skillName}: ${diceCount} dice = [${dice.join(', ')}] → ${successes} successes`);
+        
+        return { successes, dice, diceCount };
+    }
+    
+    // Roll defense skill (Mobility/Dodge or Block)
+    rollDefense(defenseType = 'dodge') {
+        if (this.reactions <= 0) {
+            console.log(`${this.name} has no reactions left to defend!`);
+            return { successes: 0, dice: [] };
+        }
+        
+        // Spend one reaction
+        this.reactions--;
+        
+        let skillName;
+        if (defenseType === 'block' && this.equipment.shield) {
+            skillName = 'block';
+        } else {
+            skillName = 'dodge'; // Use dodge as mobility/dodge
+        }
+        
+        const result = this.rollSkill(skillName);
+        console.log(`🛡️ ${this.name} uses ${skillName} defense: ${result.successes} successes (${result.dice.join(', ')}) - ${this.reactions} reactions remaining`);
+        
+        return result;
     }
     
     // Get total remaining skill points across all groups
@@ -552,12 +625,30 @@ export class Character {
         
         if (!target || !target.isAlive()) return false;
         
-        const damage = this.calculateDamage(target);
-        const actualDamage = target.takeDamage(damage);
+        // Determine which melee skill to use
+        let skillName;
+        if (this.equipment.weapon && this.equipment.weapon.type === 'heavy') {
+            skillName = 'heavy_melee';
+        } else if (this.equipment.weapon && this.equipment.weapon.type === 'light') {
+            skillName = 'light_melee';
+        } else {
+            skillName = 'unarmed_combat';
+        }
         
-        console.log(`${this.name} attacks ${target.name} for ${actualDamage} damage!`);
+        // Roll for melee weapon skill
+        const rollResult = this.rollSkill(skillName);
+        const damage = rollResult.successes; // Each success causes 1 point of damage
         
-        return actualDamage;
+        console.log(`⚔️ ${this.name} attacks ${target.name} with ${skillName}: ${rollResult.successes} successes (${rollResult.dice.join(', ')}) = ${damage} damage!`);
+        
+        // For now, just show the damage message without affecting HP
+        if (damage > 0) {
+            console.log(`💥 *** ${this.name} causes ${damage} damage to ${target.name}! ***`);
+        } else {
+            console.log(`❌ *** ${this.name}'s attack misses ${target.name}! ***`);
+        }
+        
+        return damage;
     }
     
     calculateDamage(target) {

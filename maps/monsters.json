@@ -23,16 +23,16 @@
         "attack": 16,
         "defense": 8,
         "speed": 1,
-        "attackRange": 1,
-        "visionRange": 2,
-        "soundRange": 4
+        "attackRange": 2,
+        "visionRange": 5,
+        "soundRange": 6
       },
       "rewards": {
         "experienceValue": 15,
         "goldValue": 8
       },
       "ai": "patrol",
-      "description": "Small, agile creatures that prefer hit-and-run tactics"
+      "description": "Small, agile creatures that prefer hit-and-run tactics, some with ranged weapons"
     },
     "orc": {
       "name": "Orc",
@@ -58,7 +58,7 @@
         "defense": 12,
         "speed": 1,
         "attackRange": 1,
-        "visionRange": 3,
+        "visionRange": 4,
         "soundRange": 6
       },
       "rewards": {
@@ -91,16 +91,16 @@
         "attack": 18,
         "defense": 10,
         "speed": 1,
-        "attackRange": 1,
-        "visionRange": 2,
-        "soundRange": 5
+        "attackRange": 2,
+        "visionRange": 3,
+        "soundRange": 4
       },
       "rewards": {
         "experienceValue": 20,
         "goldValue": 12
       },
       "ai": "guard",
-      "description": "Undead warriors animated by dark magic"
+      "description": "Undead warriors animated by dark magic, some with ranged attacks"
     },
     "troll": {
       "name": "Troll",
@@ -161,7 +161,7 @@
         "speed": 2,
         "attackRange": 1,
         "visionRange": 3,
-        "soundRange": 6
+        "soundRange": 8
       },
       "rewards": {
         "experienceValue": 10,
@@ -194,8 +194,8 @@
         "defense": 8,
         "speed": 1,
         "attackRange": 1,
-        "visionRange": 1,
-        "soundRange": 3
+        "visionRange": 2,
+        "soundRange": 4
       },
       "rewards": {
         "experienceValue": 12,
@@ -262,7 +262,7 @@
         "defense": 20,
         "speed": 2,
         "attackRange": 2,
-        "visionRange": 6,
+        "visionRange": 8,
         "soundRange": 10
       },
       "rewards": {

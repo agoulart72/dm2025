@@ -25,8 +25,8 @@ export class GameMap {
         this.soundEvents = []; // Array of recent sound events
         this.soundEventDuration = 3; // How many turns sound events last
         
-        // Initialize entity positions
-        this.initializeEntities(mapData.entities || []);
+        // Store entities data for later initialization
+        this.entitiesData = mapData.entities || [];
         
         // Set up spawn point
         this.setupSpawnPoint();
@@ -38,6 +38,9 @@ export class GameMap {
     async initialize() {
         // Initialize monster loader
         await this.initializeMonsterLoader();
+        
+        // Now initialize entities with monster data available
+        this.initializeEntities(this.entitiesData);
     }
     
     async initializeMonsterLoader() {
@@ -97,7 +100,9 @@ export class GameMap {
             let entity;
             
             if (entityData.type === 'enemy') {
-                entity = new Enemy(entityData);
+                // For enemies, merge with monster data from monsters.json
+                const enemyData = this.createEnemyDataFromMap(entityData);
+                entity = new Enemy(enemyData);
             } else {
                 entity = new Character(entityData);
             }
@@ -183,6 +188,50 @@ export class GameMap {
             attributes: monsterData.attributes,
             maxHp: monsterData.stats.maxHp,
             currentHp: monsterData.stats.maxHp,
+            actionPoints: monsterData.stats.actionPoints,
+            maxActionPoints: monsterData.stats.maxActionPoints,
+            attack: monsterData.stats.attack,
+            defense: monsterData.stats.defense,
+            speed: monsterData.stats.speed,
+            attackRange: monsterData.stats.attackRange,
+            visionRange: monsterData.stats.visionRange,
+            soundRange: monsterData.stats.soundRange,
+            experienceValue: monsterData.rewards.experienceValue,
+            goldValue: monsterData.rewards.goldValue,
+            ai: monsterData.ai || 'patrol'
+        };
+    }
+    
+    createEnemyDataFromMap(mapEntityData) {
+        // Determine enemy type from the name (assuming name matches monster type)
+        const enemyType = mapEntityData.name.toLowerCase();
+        
+        // Get monster data from the loader
+        const monsterData = this.monsterLoader.getMonsterData(enemyType);
+        if (!monsterData) {
+            console.error(`Monster type '${enemyType}' not found in monster data`);
+            // Fallback to basic enemy data
+            return {
+                ...mapEntityData,
+                type: 'enemy',
+                enemyType: enemyType,
+                attackRange: 1,
+                visionRange: 3,
+                soundRange: 6,
+                ai: 'patrol'
+            };
+        }
+        
+        // Get a random variant name
+        const variantName = this.monsterLoader.getRandomVariant(enemyType);
+        
+        // Merge map entity data with monster data
+        return {
+            ...mapEntityData, // Map data takes precedence for position, HP, etc.
+            name: variantName, // Use variant name from monster data
+            type: 'enemy',
+            enemyType: enemyType,
+            attributes: monsterData.attributes,
             actionPoints: monsterData.stats.actionPoints,
             maxActionPoints: monsterData.stats.maxActionPoints,
             attack: monsterData.stats.attack,

@@ -30,6 +30,7 @@ export class Enemy extends Character {
         
         // Override type
         this.type = 'enemy';
+        this.characterClass = 'enemy';
         
         // Set up AI based on enemy type
         this.setupAI();
@@ -50,14 +51,7 @@ export class Enemy extends Character {
     
     // Override AI behavior for enemies
     updateAI() {
-        if (this.stunned) {
-            this.stunDuration--;
-            if (this.stunDuration <= 0) {
-                this.stunned = false;
-            }
-            return;
-        }
-        
+        console.log(`${this.name} updating AI`);
         // Only act if we have action points
         if (this.actionPoints <= 0) {
             return;
@@ -72,8 +66,26 @@ export class Enemy extends Character {
         if (visionTarget) {
             this.target = visionTarget;
             this.lastSeenPlayer = { x: visionTarget.x, y: visionTarget.y };
-            this.aiState = 'chase';
-            console.log(`${this.name} sees player at (${visionTarget.x}, ${visionTarget.y}) - switching to chase mode`);
+            const distance = this.map.getDistance(this.x, this.y, visionTarget.x, visionTarget.y);
+            
+            // PRIORITY: Attack immediately if possible (ranged attacks prioritized over movement)
+            console.log(`📍 ${this.name} at (${this.x}, ${this.y}) sees player at (${visionTarget.x}, ${visionTarget.y}) - distance: ${distance}, attackRange: ${this.attackRange}`);
+            console.log(`🔢 Distance calculation: |${this.x} - ${visionTarget.x}| + |${this.y} - ${visionTarget.y}| = |${this.x - visionTarget.x}| + |${this.y - visionTarget.y}| = ${Math.abs(this.x - visionTarget.x)} + ${Math.abs(this.y - visionTarget.y)} = ${distance}`);
+            
+            // Check for immediate attack opportunity
+            if (distance == 0) {
+                // Can perform melee attack immediately (adjacent)
+                console.log(`⚔️ ${this.name} at (${this.x}, ${this.y}) can perform melee attack on player at (${visionTarget.x}, ${visionTarget.y}) - distance: ${distance} <= 1 - attempting melee attack immediately`);
+                this.aiState = 'melee_attack';
+            } else if (this.attackRange > 1 && this.attackRange >= distance) {
+                // Can perform ranged attack immediately
+                console.log(`🏹 ${this.name} at (${this.x}, ${this.y}) can perform ranged attack on player at (${visionTarget.x}, ${visionTarget.y}) - distance: ${distance}, range: ${this.attackRange} - attempting ranged attack immediately`);
+                this.aiState = 'ranged_attack';
+            } else {
+                // Too far to attack, switch to chase
+                console.log(`🏃 ${this.name} at (${this.x}, ${this.y}) too far from player at (${visionTarget.x}, ${visionTarget.y}) - distance: ${distance} > range: ${this.attackRange} - switching to chase mode`);
+                this.aiState = 'chase';
+            }
         } else {
             // Only check for sound if we don't see the player
             const soundTarget = this.checkSoundDetection();
@@ -106,36 +118,46 @@ export class Enemy extends Character {
             case 'investigate':
                 this.investigateBehavior();
                 break;
-            case 'attack':
-                this.attackBehavior();
+            case 'melee_attack':
+                this.meleeAttackBehavior();
+                break;
+            case 'ranged_attack':
+                this.rangedAttackBehavior();
                 break;
             case 'guard':
                 this.guardBehavior();
                 break;
         }
+
+        this.actionPoints--;
     }
     
     checkVisionDetection() {
         if (!this.map) return null;
         
-        const player = this.map.getPlayer();
-        if (!player || !player.isAlive()) return null;
-        
-        const distance = this.map.getDistance(this.x, this.y, player.x, player.y);
-        let effectiveVisionRange = this.visionRange;
-        
-        // Check if player has stealth active
-        if (player.skills && player.skills.stealth && player.skills.stealth.level > 0) {
-            effectiveVisionRange = Math.max(1, effectiveVisionRange - player.skills.stealth.level);
-        }
-        
-        if (distance <= effectiveVisionRange) {
-            // Check line of sight (simple implementation)
-            if (this.hasLineOfSight(player.x, player.y)) {
-                return player;
+        console.log(`${this.name} checking vision detection`);
+
+        const players = this.map.allEntities.filter(entity => entity.type === 'character' && entity.isAlive());
+
+        console.log(`${this.name} checking vision detection for ${players.length} players`);
+
+        for (const player of players) {
+            const distance = this.map.getDistance(this.x, this.y, player.x, player.y);
+            let effectiveVisionRange = this.visionRange;
+            
+            // Check if player has stealth active
+            if (player.skills && player.skills.stealth && player.skills.stealth.level > 0) {
+                effectiveVisionRange = Math.max(1, effectiveVisionRange - player.skills.stealth.level);
+            }
+            
+            if (distance <= effectiveVisionRange) {
+                // Check line of sight (simple implementation)
+                if (this.hasLineOfSight(player.x, player.y)) {
+                    return player;
+                }
             }
         }
-        
+
         return null;
     }
     
@@ -194,6 +216,23 @@ export class Enemy extends Character {
             }
             
             const e2 = 2 * err;
+            let nextX = currentX;
+            let nextY = currentY;
+            
+            // Determine next position based on Bresenham's algorithm
+            if (e2 > -dy) {
+                nextX = currentX + sx;
+            }
+            if (e2 < dx) {
+                nextY = currentY + sy;
+            }
+            
+            // Check if there's a wall or closed door between current and next position
+            if (this.isBlockedByBorder(currentX, currentY, nextX, nextY)) {
+                return false; // Line of sight blocked by border
+            }
+            
+            // Update position based on Bresenham's algorithm
             if (e2 > -dy) {
                 err -= dy;
                 currentX += sx;
@@ -205,6 +244,39 @@ export class Enemy extends Character {
         }
         
         return true; // Line of sight is clear
+    }
+    
+    isBlockedByBorder(fromX, fromY, toX, toY) {
+        // Check if there's a wall or closed door between two adjacent positions
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        
+        // Only check borders for adjacent tiles
+        if (Math.abs(dx) + Math.abs(dy) !== 1) {
+            return false;
+        }
+        
+        let border;
+        if (dx === 1) { // Moving east
+            border = this.map.getBorder(fromX, fromY, 'east');
+        } else if (dx === -1) { // Moving west
+            border = this.map.getBorder(fromX, fromY, 'west');
+        } else if (dy === 1) { // Moving south
+            border = this.map.getBorder(fromX, fromY, 'south');
+        } else if (dy === -1) { // Moving north
+            border = this.map.getBorder(fromX, fromY, 'north');
+        } else {
+            return false;
+        }
+        
+        // Check if border blocks line of sight
+        if (border.type === 'wall') {
+            return true; // Wall blocks line of sight
+        } else if (border.type === 'door' && !border.open) {
+            return true; // Closed door blocks line of sight
+        }
+        
+        return false; // No blocking border
     }
     
     idleBehavior() {
@@ -251,27 +323,32 @@ export class Enemy extends Character {
         }
         
         const distance = this.map.getDistance(this.x, this.y, this.target.x, this.target.y);
-        console.log(`${this.name} chase: distance=${distance}, attackRange=${this.attackRange}, at (${this.x},${this.y}), target at (${this.target.x},${this.target.y})`);
+        console.log(`🏃 ${this.name} at (${this.x}, ${this.y}) chase: distance=${distance}, attackRange=${this.attackRange}, target at (${this.target.x}, ${this.target.y})`);
         
-        if (distance <= this.attackRange) {
-            // Close enough to attack
-            console.log(`${this.name} switching to attack mode (within attack range)`);
+        // Check if we're now close enough to attack
+        if (distance <= 1 || (this.attackRange > 1 && distance <= this.attackRange)) {
+            console.log(`🎯 ${this.name} at (${this.x}, ${this.y}) now within attack range of target at (${this.target.x}, ${this.target.y}) - distance: ${distance}, range: ${this.attackRange}, switching to attack mode`);
             this.aiState = 'attack';
-        } else if (distance === 0) {
-            // On the same tile as target - attack immediately
-            console.log(`${this.name} switching to attack mode (same tile)`);
-            this.aiState = 'attack';
+            return;
+        }
+        
+        // Move towards target
+        console.log(`🏃 ${this.name} at (${this.x}, ${this.y}) moving towards target at (${this.target.x}, ${this.target.y}) - distance: ${distance} > range: ${this.attackRange}, actionPoints: ${this.actionPoints}`);
+        
+        if (this.actionPoints <= 0) {
+            console.log(`⏸️ ${this.name} has no action points left, ending turn`);
+            return;
+        }
+        
+        const path = this.map.findPath(this.x, this.y, this.target.x, this.target.y);
+        if (path && path.length > 1) {
+            const nextStep = path[1];
+            console.log(`🦶 ${this.name} attempting to move from (${this.x}, ${this.y}) to (${nextStep.x}, ${nextStep.y}) with ${this.actionPoints} action points`);
+            this.moveTo(nextStep.x, nextStep.y);
         } else {
-            // Move towards target
-            console.log(`${this.name} moving towards target`);
-            const path = this.map.findPath(this.x, this.y, this.target.x, this.target.y);
-            if (path && path.length > 1) {
-                const nextStep = path[1];
-                this.moveTo(nextStep.x, nextStep.y);
-            } else {
-                // No path found, try direct movement
-                this.moveTowardsTarget();
-            }
+            // No path found, try direct movement
+            console.log(`🦶 ${this.name} no path found, trying direct movement with ${this.actionPoints} action points`);
+            this.moveTowardsTarget();
         }
     }
     
@@ -325,38 +402,16 @@ export class Enemy extends Character {
             }
         }
     }
-    
-    attackBehavior() {
-        if (!this.target) {
-            this.aiState = 'patrol';
-            return;
-        }
-        
-        // Don't attack sound targets
-        if (this.target.isSoundTarget) {
-            this.aiState = 'investigate';
-            return;
-        }
-        
-        // Check if target is still alive (for player targets)
-        if (!this.target.isAlive()) {
-            this.aiState = 'patrol';
-            return;
-        }
-        
-        const distance = this.map.getDistance(this.x, this.y, this.target.x, this.target.y);
-        console.log(`${this.name} attack: distance=${distance}, attackRange=${this.attackRange}, actionPoints=${this.actionPoints}`);
-        
-        if (distance <= this.attackRange || distance === 0) {
-            // Attack the target
-            console.log(`${this.name} attempting to attack ${this.target.name}`);
-            this.attack(this.target);
-        } else {
-            // Move closer
-            console.log(`${this.name} too far to attack, switching to chase`);
-            this.aiState = 'chase';
-        }
+
+
+    meleeAttackBehavior() {
+        this.attack(this.target);
     }
+
+    rangedAttackBehavior() {
+        this.rangedAttack(this.target);
+    }
+    
     
     guardBehavior() {
         // Guard enemies stay near their original position
@@ -448,22 +503,131 @@ export class Enemy extends Character {
         
         if (!target || !target.isAlive()) return false;
         
-        const damage = this.calculateDamage(target);
-        const actualDamage = target.takeDamage(damage);
+        // Enemies use their attack skill value directly (no dice rolling)
+        const baseDamage = this.attack;
         
-        // Show attack message
-        console.log(`${this.name} attacks ${target.name} for ${actualDamage} damage!`);
+        // Check if target can defend (has reactions)
+        if (target.reactions && target.reactions > 0) {
+            // Target rolls defense
+            const defenseResult = target.rollDefense();
+            const finalDamage = Math.max(0, baseDamage - defenseResult.successes);
+            
+            console.log(`⚔️ ${this.name} attacks ${target.name} for ${baseDamage} damage!`);
+            console.log(`🛡️ ${target.name} defends with ${defenseResult.successes} successes, reducing damage to ${finalDamage}`);
+            
+            if (finalDamage > 0) {
+                console.log(`💥 *** ${this.name} causes ${finalDamage} damage to ${target.name}! ***`);
+            } else {
+                console.log(`✅ *** ${target.name} completely avoids ${this.name}'s attack! ***`);
+            }
+            
+            // Emit attack event for UI updates
+            if (this.map && this.map.gameEngine && this.map.gameEngine.eventSystem) {
+                this.map.gameEngine.eventSystem.emit('enemy_attack', {
+                    enemy: this,
+                    target: target,
+                    damage: finalDamage,
+                    attackType: 'melee',
+                    baseDamage: baseDamage,
+                    defenseSuccesses: defenseResult.successes
+                });
+            }
+            
+            return finalDamage;
+        } else {
+            // Target has no reactions, takes full damage
+            console.log(`⚔️ ${this.name} attacks ${target.name} for ${baseDamage} damage! (${target.name} has no reactions left)`);
+            console.log(`💥 *** ${this.name} causes ${baseDamage} damage to ${target.name}! ***`);
+            
+            // Emit attack event for UI updates
+            if (this.map && this.map.gameEngine && this.map.gameEngine.eventSystem) {
+                this.map.gameEngine.eventSystem.emit('enemy_attack', {
+                    enemy: this,
+                    target: target,
+                    damage: baseDamage,
+                    attackType: 'melee',
+                    baseDamage: baseDamage,
+                    defenseSuccesses: 0
+                });
+            }
+            
+            return baseDamage;
+        }
+    }
+    
+    // Ranged attack method for enemies with attackRange > 1
+    rangedAttack(target) {
+        if (!this.canPerformAction('attack')) return false;
+        if (!this.spendActionPoints(1)) return false;
         
-        // Emit attack event for UI updates
-        if (this.map && this.map.gameEngine && this.map.gameEngine.eventSystem) {
-            this.map.gameEngine.eventSystem.emit('enemy_attack', {
-                enemy: this,
-                target: target,
-                damage: actualDamage
-            });
+        if (!target || !target.isAlive()) return false;
+        
+        const distance = this.map.getDistance(this.x, this.y, target.x, target.y);
+        
+        // Check if target is within ranged attack range
+        if (distance > this.attackRange) {
+            console.log(`${this.name} cannot perform ranged attack - target too far (${distance} > ${this.attackRange})`);
+            return false;
         }
         
-        return actualDamage;
+        // Check line of sight for ranged attacks
+        if (!this.hasLineOfSight(target.x, target.y)) {
+            console.log(`${this.name} cannot perform ranged attack - no line of sight to ${target.name}`);
+            return false;
+        }
+        
+        // Enemies use their attack skill value directly (no dice rolling)
+        const baseDamage = this.attack;
+        
+        // Check if target can defend (has reactions)
+        if (target.reactions && target.reactions > 0) {
+            // Target rolls defense
+            const defenseResult = target.rollDefense();
+            const finalDamage = Math.max(0, baseDamage - defenseResult.successes);
+            
+            console.log(`🏹 ${this.name} performs a ranged attack on ${target.name} for ${baseDamage} damage!`);
+            console.log(`🛡️ ${target.name} defends with ${defenseResult.successes} successes, reducing damage to ${finalDamage}`);
+            
+            if (finalDamage > 0) {
+                console.log(`💥 *** ${this.name} causes ${finalDamage} damage to ${target.name} with ranged attack! ***`);
+            } else {
+                console.log(`✅ *** ${target.name} completely avoids ${this.name}'s ranged attack! ***`);
+            }
+            
+            // Emit ranged attack event for UI updates
+            if (this.map && this.map.gameEngine && this.map.gameEngine.eventSystem) {
+                this.map.gameEngine.eventSystem.emit('enemy_attack', {
+                    enemy: this,
+                    target: target,
+                    damage: finalDamage,
+                    attackType: 'ranged',
+                    distance: distance,
+                    baseDamage: baseDamage,
+                    defenseSuccesses: defenseResult.successes
+                });
+            }
+            
+            return finalDamage;
+        } else {
+            // Target has no reactions, takes full damage
+            console.log(`🏹 ${this.name} performs a ranged attack on ${target.name} for ${baseDamage} damage! (${target.name} has no reactions left)`);
+            console.log(`💥 *** ${this.name} causes ${baseDamage} damage to ${target.name} with ranged attack! ***`);
+            
+            // Emit ranged attack event for UI updates
+            if (this.map && this.map.gameEngine && this.map.gameEngine.eventSystem) {
+                this.map.gameEngine.eventSystem.emit('enemy_attack', {
+                    enemy: this,
+                    target: target,
+                    damage: baseDamage,
+                    attackType: 'ranged',
+                    distance: distance,
+                    baseDamage: baseDamage,
+                    defenseSuccesses: 0
+                });
+            }
+            
+            return baseDamage;
+        }
     }
     
     // Override toJSON to include enemy-specific properties

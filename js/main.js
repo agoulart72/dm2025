@@ -170,6 +170,11 @@ class DungeonMaster2025 {
             this.showCharacterDialog();
         });
         
+        // Help dialog
+        this.inputManager.onKeyDown('KeyH', () => {
+            this.uiManager.showHelpDialog();
+        });
+        
         // Character switching
         this.inputManager.onKeyDown('Tab', () => {
             this.switchToNextCharacter();
@@ -235,6 +240,10 @@ class DungeonMaster2025 {
         
         document.getElementById('next-character-btn').addEventListener('click', () => {
             this.switchToNextCharacter();
+        });
+        
+        document.getElementById('help-btn').addEventListener('click', () => {
+            this.uiManager.showHelpDialog();
         });
         
         // Set up character switch callback for UI
@@ -504,10 +513,7 @@ class DungeonMaster2025 {
         // Update and render
         this.gameEngine.update();
         this.gameEngine.render();
-        
-        // Process enemy AI
-        this.processEnemyAI();
-        
+                
         // Continue loop
         requestAnimationFrame(() => this.gameLoop());
     }
@@ -527,13 +533,17 @@ class DungeonMaster2025 {
     }
     
     processEnemyTurn() {
+        console.log('Processing enemy turn');
         if (!this.currentMap) return;
         
         // Get all enemies on the map
         const enemies = this.currentMap.allEntities.filter(entity => entity.type === 'enemy');
         
+        console.log(`Processing ${enemies.length} enemies`);
+
         // Process each enemy's turn
         enemies.forEach(enemy => {
+            console.log(`Processing enemy turn for : ${enemy.name}`);
             if (enemy.isAlive()) {
                 // Restore action points for this enemy
                 enemy.restoreActionPoints();
@@ -560,8 +570,9 @@ class DungeonMaster2025 {
     }
         
     createNewCharacter() {
-        const characterTypes = ['warrior', 'mage', 'rogue', 'cleric'];
-        const type = characterTypes[Math.floor(Math.random() * characterTypes.length)];
+        const characterClasses = ['warrior', 'mage', 'rogue', 'cleric'];
+        const characterClass = characterClasses[Math.floor(Math.random() * characterClasses.length)];
+        const type = "character";
         const names = ['Aria', 'Blade', 'Crystal', 'Dusk', 'Echo', 'Frost', 'Gale', 'Haven'];
         const name = names[Math.floor(Math.random() * names.length)];
         
@@ -569,6 +580,7 @@ class DungeonMaster2025 {
             id: `${type}-${Date.now()}`,
             name: name,
             type: type,
+            characterClass: characterClass,
             x: 6,
             y: 6,
             level: 1,
@@ -727,10 +739,11 @@ class DungeonMaster2025 {
         // Process enemy turns immediately
         this.processEnemyTurn();
         
-        // Restore action points for all characters in group
+        // Restore action points and reactions for all characters in group
         this.group.forEach(character => {
             character.restoreActionPoints();
-            console.log(`${character.name} restored ${character.actionPoints} action points`);
+            character.restoreReactions();
+            console.log(`${character.name} restored ${character.actionPoints} action points and ${character.reactions} reactions`);
         });
         
         // Reset to first character in group order

@@ -1,0 +1,1 @@
+cd /home/adriano/Work/games/projects/dm2025 && python3 -m http.server 8080

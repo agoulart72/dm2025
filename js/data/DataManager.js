@@ -11,7 +11,8 @@ export class DataManager {
                 {
                     id: 'warrior-1',
                     name: 'Thorin',
-                    type: 'warrior',
+                    type: 'character',
+                    characterClass: 'warrior',
                     x: 6,
                     y: 6,
                     level: 1,
@@ -76,7 +77,8 @@ export class DataManager {
                 {
                     id: 'mage-1',
                     name: 'Zara',
-                    type: 'mage',
+                    type: 'character',
+                    characterClass: 'mage',
                     x: 7,
                     y: 6,
                     level: 1,
@@ -141,7 +143,8 @@ export class DataManager {
                 {
                     id: 'rogue-1',
                     name: 'Shadow',
-                    type: 'rogue',
+                    type: 'character',
+                    characterClass: 'rogue',
                     x: 6,
                     y: 7,
                     level: 1,
@@ -206,7 +209,8 @@ export class DataManager {
                 {
                     id: 'cleric-1',
                     name: 'Aria',
-                    type: 'cleric',
+                    type: 'character',
+                    characterClass: 'cleric',
                     x: 7,
                     y: 7,
                     level: 1,
@@ -356,6 +360,7 @@ export class DataManager {
             id: character.id,
             name: character.name,
             type: character.type,
+            characterClass: character.characterClass,
             x: character.x,
             y: character.y,
             level: character.level,

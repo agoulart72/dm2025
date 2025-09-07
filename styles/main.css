@@ -755,3 +755,189 @@ body {
     color: #ffc107;
     font-weight: bold;
 }
+
+/* Help Dialog Styles */
+.help-section {
+    margin-bottom: 25px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #4a4a6a;
+}
+
+.help-section h3 {
+    color: #4ecdc4;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #4a4a6a;
+    padding-bottom: 8px;
+}
+
+.help-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.help-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    border: 1px solid #4a4a6a;
+}
+
+.help-key {
+    background: #4ecdc4;
+    color: #1a1a2e;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: center;
+}
+
+.help-desc {
+    color: #e8e8e8;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.help-skill-shortcuts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.help-skill-shortcut {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    border: 1px solid #4a4a6a;
+}
+
+.help-skill-key {
+    background: #ffa500;
+    color: #1a1a2e;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.help-skill-name {
+    color: #e8e8e8;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+.help-text {
+    color: #e8e8e8;
+    line-height: 1.6;
+}
+
+.help-text p {
+    margin-bottom: 12px;
+}
+
+.help-text strong {
+    color: #4ecdc4;
+}
+
+.skill-configuration {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid #4a4a6a;
+    border-radius: 8px;
+}
+
+.skill-configuration h4 {
+    color: #4ecdc4;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+}
+
+.skill-configuration p {
+    color: #b8b8b8;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.skill-config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skill-config-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.skill-config-item label {
+    min-width: 80px;
+    font-weight: bold;
+    color: #4ecdc4;
+}
+
+.skill-config-item select {
+    flex: 1;
+    padding: 5px;
+    background: #2a2a4a;
+    border: 1px solid #4a4a6a;
+    border-radius: 4px;
+    color: #e8e8e8;
+}
+
+.skill-config-item select:focus {
+    outline: none;
+    border-color: #4ecdc4;
+}
+
+/* Updated skill shortcuts in controls panel */
+.controls-panel .skill-shortcuts {
+    margin-top: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid #4a4a6a;
+}
+
+.controls-panel .skill-shortcuts h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.controls-panel .skill-shortcut {
+    padding: 6px 10px;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+}
+
+.controls-panel .shortcut-key {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+    min-width: 20px;
+}
+
+.controls-panel .shortcut-skill {
+    font-size: 0.85rem;
+}
+
+.controls-panel .shortcut-cost {
+    font-size: 0.75rem;
+    padding: 1px 4px;
+}

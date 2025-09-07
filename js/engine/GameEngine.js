@@ -163,39 +163,7 @@ export class GameEngine {
         
         return true;
     }
-    
-    endTurn() {
-        // Emit turn end event
-        if (this.eventSystem) {
-            this.eventSystem.emit('turn_end', {
-                turn: this.turn,
-                player: this.player,
-                actionPointsSpent: this.maxActionPoints - this.actionPoints
-            });
-        }
         
-        this.actionPoints = this.maxActionPoints;
-        this.turn++;
-        
-        // Emit turn start event
-        if (this.eventSystem) {
-            this.eventSystem.emit('turn_start', {
-                turn: this.turn,
-                player: this.player,
-                actionPoints: this.actionPoints
-            });
-        }
-        
-        // TODO: Process enemy turns here
-        this.processEnemyTurns();
-    }
-    
-    processEnemyTurns() {
-        // For now, just a placeholder for enemy AI
-        // This will be expanded later
-        console.log('Processing enemy turns...');
-    }
-    
     update() {
         // Update game logic here
         // For now, just ensure camera follows player
@@ -357,8 +325,8 @@ export class GameEngine {
             const entitySize = this.tileSize * 0.4; // Slightly larger for images            
 
             // Check if this is a character with an image
-            if (this.characterImages[entity.characterType]) {
-                const img = this.characterImages[entity.characterType];
+            if (this.characterImages[entity.characterClass]) {
+                const img = this.characterImages[entity.characterClass];
                 if (img.complete && img.naturalHeight !== 0) {
                     // Draw colored background circle first
                     const circleRadius = entitySize / 2;
@@ -372,7 +340,7 @@ export class GameEngine {
                         'cleric': '#FFD700'   // Gold
                     };
                     
-                    const bgColor = characterColors[entity.characterType] || '#4ecdc4';
+                    const bgColor = characterColors[entity.characterClass] || '#4ecdc4';
                     
                     // Draw background circle
                     this.ctx.fillStyle = bgColor;

@@ -22,7 +22,7 @@ export class InputManager {
         
         // Prevent default behavior for game keys
         document.addEventListener('keydown', (e) => {
-            const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyR'];
+            const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyQ', 'KeyR', 'KeyH'];
             if (gameKeys.includes(e.code)) {
                 e.preventDefault();
             }
